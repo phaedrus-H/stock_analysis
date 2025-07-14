@@ -42,7 +42,7 @@ def main():
         
         # Perform analysis
         print("\nPerforming stock analysis...")
-        results = analyzer.analyze_stock(end_year="2024-12-31")
+        results = analyzer.analyze_stock()
         
         # Print results to console
         print("\n")
@@ -100,7 +100,7 @@ def analyze_multiple_tickers(tickers: list):
             analyzer.load_data(ticker, sheet_mapping)
             
             # Perform analysis
-            results = analyzer.analyze_stock(end_year="2024-12-31")
+            results = analyzer.analyze_stock()
             
             # Print results to console
             analyzer.print_analysis()

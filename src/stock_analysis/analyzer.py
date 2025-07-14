@@ -70,34 +70,116 @@ class StockAnalyzer:
     def find_best_start_year(self, preferred_years: list = None) -> str:
         """
         Find the best available start year based on data availability.
+        Ensures the start year has all required metrics: Revenue, Income, and FCF.
+        Searches by year (2019, 2020, 2021, etc.) regardless of month/day.
         
         Args:
             preferred_years: List of preferred years in order of preference
             
         Returns:
-            Best available start year
+            Best available start year (2019 or later)
         """
         if preferred_years is None:
-            preferred_years = ["2019-12-31", "2020-12-31", "2021-12-31", "2022-12-31"]
+            preferred_years = [2019, 2020, 2021, 2022, 2023, 2024]
         
-        # Check revenue data availability for each preferred year
+        def find_date_for_year(year: int) -> str:
+            """Find any date entry for the given year in the data."""
+            if self.calculator.income_data is not None:
+                available_dates = self.calculator.income_data.index.strftime('%Y-%m-%d')
+                for date in available_dates:
+                    if date.startswith(str(year)):
+                        return date
+            return None
+        
+        # Check data availability for each preferred year
         for year in preferred_years:
-            revenue_value = self.calculator.get_metric_value(year, 'income', 'Revenue')
-            if revenue_value != 'N/A' and revenue_value is not None:
-                print(f"Using start year: {year}")
-                return year
+            date_for_year = find_date_for_year(year)
+            
+            if date_for_year:
+                revenue_value = self.calculator.get_metric_value(date_for_year, 'income', 'Revenue')
+                income_value = self.calculator.get_metric_value(date_for_year, 'income', 'Net Income')
+                fcf_value = self.calculator.get_metric_value(date_for_year, 'cash_flow', 'Free Cash Flow')
+                
+                # Check if all three required values are available
+                if (revenue_value != 'N/A' and revenue_value is not None and
+                    income_value != 'N/A' and income_value is not None and
+                    fcf_value != 'N/A' and fcf_value is not None):
+                    print(f"Using start year: {year} (date: {date_for_year})")
+                    return date_for_year
         
-        # If no preferred year works, use the earliest available year
+        # If no preferred year works, find the earliest available year from 2019 onwards
+        # that has all three required metrics
         if self.calculator.income_data is not None:
-            available_years = sorted(self.calculator.income_data.index.strftime('%Y-%m-%d'))
-            if available_years:
-                print(f"Using earliest available year: {available_years[0]}")
-                return available_years[0]
+            available_dates = sorted(self.calculator.income_data.index.strftime('%Y-%m-%d'))
+            
+            for date in available_dates:
+                year = int(date[:4])
+                
+                # Skip years before 2019 and after 2024
+                if year < 2019 or year > 2024:
+                    continue
+                    
+                revenue_value = self.calculator.get_metric_value(date, 'income', 'Revenue')
+                income_value = self.calculator.get_metric_value(date, 'income', 'Net Income')
+                fcf_value = self.calculator.get_metric_value(date, 'cash_flow', 'Free Cash Flow')
+                
+                # Check if all three required values are available
+                if (revenue_value != 'N/A' and revenue_value is not None and
+                    income_value != 'N/A' and income_value is not None and
+                    fcf_value != 'N/A' and fcf_value is not None):
+                    print(f"Using earliest available year with all metrics: {year} (date: {date})")
+                    return date
         
-        # Default fallback
+        # Default fallback - try to find any 2019 date, or create one
+        fallback_date = find_date_for_year(2019)
+        if fallback_date:
+            print(f"Warning: No year found with all required metrics. Using fallback: {fallback_date}")
+            return fallback_date
+        
+        # Absolute fallback
+        print("Warning: No suitable date found. Using default 2019-12-31")
         return "2019-12-31"
+
+    def find_best_end_year(self) -> str:
+        """
+        Find the best available end year from 2024 based on data availability.
+        Ensures the end year has all required metrics: Revenue, Income, and FCF.
+        
+        Returns:
+            Best available end year date from 2024
+        """
+        
+        def has_all_metrics(date: str) -> bool:
+            """Check if a date has all three required metrics."""
+            revenue_value = self.calculator.get_metric_value(date, 'income', 'Revenue')
+            income_value = self.calculator.get_metric_value(date, 'income', 'Net Income')
+            fcf_value = self.calculator.get_metric_value(date, 'cash_flow', 'Free Cash Flow')
+            
+            return (revenue_value != 'N/A' and revenue_value is not None and
+                    income_value != 'N/A' and income_value is not None and
+                    fcf_value != 'N/A' and fcf_value is not None)
+        
+        # Find all available 2024 dates
+        if self.calculator.income_data is not None:
+            available_dates = sorted(self.calculator.income_data.index.strftime('%Y-%m-%d'))
+            
+            # Look for 2024 dates with all required metrics
+            for date in reversed(available_dates):  # Start from latest date
+                if date.startswith('2024') and has_all_metrics(date):
+                    print(f"Using end year: 2024 (date: {date})")
+                    return date
+            
+            # If no 2024 date has all metrics, just pick any 2024 date
+            for date in reversed(available_dates):
+                if date.startswith('2024'):
+                    print(f"Warning: Using 2024 date without all metrics: {date}")
+                    return date
+        
+        # Fallback if no 2024 data exists
+        print("Warning: No 2024 data found. Using default 2024-12-31")
+        return "2024-12-31"
     
-    def analyze_stock(self, end_year: str = "2024-12-31") -> Dict[str, Any]:
+    def analyze_stock(self) -> Dict[str, Any]:
         """
         Perform comprehensive stock analysis.
         
@@ -112,6 +194,7 @@ class StockAnalyzer:
         
         # Find the best start year
         start_year = self.find_best_start_year()
+        end_year = self.find_best_end_year()
         
         # Revenue analysis
         revenue_start = self.calculator.get_metric_value(start_year, 'income', 'Revenue')
