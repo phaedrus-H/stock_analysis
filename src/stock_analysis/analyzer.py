@@ -148,6 +148,8 @@ class StockAnalyzer:
         Returns:
             Best available end year date from 2024
         """
+
+        end_year = '2024'
         
         def has_all_metrics(date: str) -> bool:
             """Check if a date has all three required metrics."""
@@ -159,25 +161,25 @@ class StockAnalyzer:
                     income_value != 'N/A' and income_value is not None and
                     fcf_value != 'N/A' and fcf_value is not None)
         
-        # Find all available 2024 dates
+        # Find all available end_year dates
         if self.calculator.income_data is not None:
             available_dates = sorted(self.calculator.income_data.index.strftime('%Y-%m-%d'))
             
-            # Look for 2024 dates with all required metrics
+            # Look for end_year dates with all required metrics
             for date in reversed(available_dates):  # Start from latest date
-                if date.startswith('2024') and has_all_metrics(date):
+                if date.startswith(end_year) and has_all_metrics(date):
                     print(f"Using end year: 2024 (date: {date})")
                     return date
             
-            # If no 2024 date has all metrics, just pick any 2024 date
+            # If no end_year date has all metrics, just pick any end_year date
             for date in reversed(available_dates):
-                if date.startswith('2024'):
-                    print(f"Warning: Using 2024 date without all metrics: {date}")
+                if date.startswith(end_year):
+                    print(f"Warning: Using {end_year} date without all metrics: {date}")
                     return date
         
-        # Fallback if no 2024 data exists
-        print("Warning: No 2024 data found. Using default 2024-12-31")
-        return "2024-12-31"
+        # Fallback if no end_year data exists
+        print(f"Warning: No {end_year} data found. Using default {end_year}-12-31")
+        return f"{end_year}-12-31"
     
     def analyze_stock(self) -> Dict[str, Any]:
         """

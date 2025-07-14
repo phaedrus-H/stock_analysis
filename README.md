@@ -1,110 +1,5 @@
 # Stock Analysis Tool
 
-A Python package for analyzing financial data from CSV files extracted from Excel spreadsheets.
-
-## Features
-
-- Load and preprocess financial data from multiple CSV files
-- Calculate growth rates for various financial metrics
-- Compute enterprise value and other key financial ratios
-- Generate comprehensive financial analysis reports
-
-## Installation
-
-1. Clone the repository
-2. Create a virtual environment: `python -m venv venv`
-3. Activate the virtual environment: `source venv/bin/activate` (Linux/Mac) or `venv\Scripts\activate` (Windows)
-4. Install dependencies: `pip install -r requirements.txt`
-
-## Usage
-
-### Basic Usage
-
-```python
-from stock_analysis import StockAnalyzer
-
-# Initialize the analyzer
-analyzer = StockAnalyzer(data_directory="data")
-
-# Define your CSV files
-file_mapping = {
-    'income': 'reax-financials.xlsx - Income-Annual.csv',
-    'balance_sheet': 'reax-financials.xlsx - Balance-Sheet-Annual.csv',
-    'cash_flow': 'reax-financials.xlsx - Cash-Flow-Annual.csv',
-    'ratios': 'reax-financials.xlsx - Ratios-Annual.csv'
-}
-
-# Load data and perform analysis
-analyzer.load_data(file_mapping)
-results = analyzer.analyze_stock(start_year="2019-12-31", end_year="2024-12-31")
-analyzer.print_analysis()
-```
-
-### Command Line Usage
-
-```bash
-# Make sure you're in the project directory and virtual environment is activated
-python -m stock_analysis.main
-```
-
-## Data Structure
-
-Place your CSV files in the `data/` directory. The expected file structure is:
-
-```
-data/
-├── reax-financials.xlsx - Income-Annual.csv
-├── reax-financials.xlsx - Balance-Sheet-Annual.csv
-├── reax-financials.xlsx - Cash-Flow-Annual.csv
-└── reax-financials.xlsx - Ratios-Annual.csv
-```
-
-## Development
-
-### Running Tests
-
-```bash
-pytest tests/
-```
-
-### Code Formatting
-
-```bash
-black src/
-```
-
-### Linting
-
-```bash
-flake8 src/
-```
-
-## Project Structure
-
-```
-stock_analysis/
-├── src/
-│   └── stock_analysis/
-│       ├── __init__.py
-│       ├── analyzer.py
-│       ├── calculator.py
-│       ├── data_loader.py
-│       └── main.py
-├── tests/
-│   ├── __init__.py
-│   ├── test_analyzer.py
-│   ├── test_calculator.py
-│   └── test_data_loader.py
-├── data/
-│   └── (your CSV files here)
-├── requirements.txt
-├── setup.py
-└── README.md
-```
-
-
-# Stock Analysis Tool - Usage Guide
-
 ## Overview
 The updated stock analysis tool now supports multiple tickers, automatic file detection, Excel output, and intelligent start year selection.
 
@@ -118,48 +13,72 @@ The updated stock analysis tool now supports multiple tickers, automatic file de
   - `AAPL-financials.xlsx`
   - `AAPL-financials.xlsx`
 
-### 2. Intelligent Start Year Selection
+### 2. Intelligent Start Date & End Date Selection
 - Default preference order: 2019 → 2020 → 2021 → 2022
-- Automatically selects the earliest year with available revenue data
+- Automatically selects the earliest year with available revenue, net income and free cash flow data
 - Displays the selected start year in the output
+- Automatically selects any 2024 date as the end date with available revenue, net income and free cash flow data
 
 ### 3. Excel Output
 - Results are automatically exported to `{TICKER}-result.xlsx`
 - Formatted output with clear sections and proper value formatting
-- Includes analysis period information
+- Includes analysis start year information
+- The Excel file contains a structured table with following columns:
+    |--------|------------|-----------------|---------------|----------------|----------------|--------------|---------------|-------------|-----------|------------|----------|-----------|------------|------------|--------------------|------------------|--------------|
+    | Ticker | Start Year | Revenue (Start) | Revenue (End) | Revenue Growth | Income (Start) | Income (End) | Income Growth | FCF (Start) | FCF (End) | FCF Growth | PE Ratio | PEG Ratio | Market Cap | Total Debt | Cash & Equivalents | Enterprise Value | Gross Profit |
+    |--------|------------|-----------------|---------------|----------------|----------------|--------------|---------------|-------------|-----------|------------|----------|-----------|------------|------------|--------------------|------------------|--------------|
+
+## Installation
+
+1. Clone the repository using `git clone git@github.com:phaedrus-H/stock_analysis.git`
+2. Create a virtual environment: `python -m venv venv`
+3. Activate the virtual environment: `source venv/bin/activate` (Linux/Mac) or `venv\Scripts\activate` (Windows)
+4. Install dependencies: `pip install -r requirements.txt`. Or run `pip install -e .`
+
+## Usage
+
+### Command Line Usage
+
+```bash
+# Make sure you're in the project directory and virtual environment is activated
+python -m stock_analysis.main
+```
+
 
 ## Usage Methods
 
-### Method 1: Single Ticker Analysis
+### Method 1: Interactive mode - Prompts for Ticker
 ```bash
+# Make sure you're in the project directory and virtual environment is activated
 # Interactive mode (prompts for ticker)
-python main.py
+python -m stock_analysis.main
+```
 
+### Method 2: Single Ticker Analysis
+```bash
+# Make sure you're in the project directory and virtual environment is activated
 # Command line argument
-python main.py AAPL
+python -m stock_analysis.main AAPL
 ```
 
 ### Method 2: Batch Analysis (Multiple Tickers)
 ```bash
+# Make sure you're in the project directory and virtual environment is activated
 # Analyze multiple tickers at once
-python main.py AAPL MSFT GOOGL TSLA
+python -m stock_analysis.main AAPL MSFT GOOGL TSLA
 ```
 
-## File Structure Requirements
+## Data File Structure Requirements
 
 ```
-project/
+stock_analysis/
 ├── data/
 │   ├── aapl-financials.xlsx
 │   ├── msft-financials.xlsx
 │   ├── googl-financials.xlsx
 │   └── tsla-financials.xlsx
-├── stock_analysis/
-│   ├── __init__.py
-│   ├── analyzer.py
-│   ├── calculator.py
-│   └── data_loader.py
-└── main.py
+├── src/
+│   └──   stock_analysis/
 ```
 
 ## Expected Excel File Format
@@ -193,15 +112,51 @@ Revenue Growth: 47.35%
 ...
 ```
 
-### Excel Output
-The Excel file contains a structured table with:
-- Ticker symbol
-- Analysis period
-- Revenue analysis (start, end, growth)
-- Net income analysis
-- Free cash flow analysis
-- Financial ratios
-- Other key metrics
+
+## Project Structure
+
+```
+stock_analysis/
+├── src/
+│   └── stock_analysis/
+│       ├── __init__.py
+│       ├── analyzer.py
+│       ├── calculator.py
+│       ├── data_loader.py
+│       └── main.py
+├── tests/
+│   ├── __init__.py
+│   ├── test_analyzer.py
+│   ├── test_calculator.py
+│   └── test_data_loader.py
+├── data/
+│   └── (your XLSX files here)
+├── output/
+│   └── (output XLSX files get written here)
+├── requirements.txt
+├── setup.py
+└── README.md
+```
+
+## Development
+
+### Running Tests
+
+```bash
+pytest tests/
+```
+
+### Code Formatting
+
+```bash
+black src/
+```
+
+### Linting
+
+```bash
+flake8 src/
+```
 
 ## Customization Options
 
@@ -217,15 +172,17 @@ sheet_mapping = {
 ```
 
 ### Change Analysis Period
-Modify the `end_year` parameter in the `analyze_stock()` call:
+
+#### Adjust End Year Preferences
+Modify the `end_year` parameter in the `find_best_end_year()` method in `analyzer.py`:
 ```python
-results = analyzer.analyze_stock(end_year="2023-12-31")
+end_year = '2024'
 ```
 
-### Adjust Start Year Preferences
-Edit the `preferred_years` list in the `find_best_start_year()` method:
+#### Adjust Start Year Preferences
+Edit the `preferred_years` list in the `find_best_start_year()` method in `analyzer.py`:
 ```python
-preferred_years = ["2018-12-31", "2019-12-31", "2020-12-31"]
+preferred_years = [2019, 2020, 2021, 2022, 2023, 2024]
 ```
 
 ## Dependencies
@@ -244,4 +201,3 @@ pip install pandas openpyxl
 
 ### Tips
 - Use consistent ticker symbols (preferably uppercase)
-- Ensure
