@@ -23,10 +23,12 @@ The updated stock analysis tool now supports multiple tickers, automatic file de
 - Results are automatically exported to `{TICKER}-result.xlsx`
 - Formatted output with clear sections and proper value formatting
 - Includes analysis start year information
-- The Excel file contains a structured table with following columns:
-    |--------|------------|-----------------|---------------|----------------|----------------|--------------|---------------|-------------|-----------|------------|----------|-----------|------------|------------|--------------------|------------------|--------------|
-    | Ticker | Start Year | Revenue (Start) | Revenue (End) | Revenue Growth | Income (Start) | Income (End) | Income Growth | FCF (Start) | FCF (End) | FCF Growth | PE Ratio | PEG Ratio | Market Cap | Total Debt | Cash & Equivalents | Enterprise Value | Gross Profit |
-    |--------|------------|-----------------|---------------|----------------|----------------|--------------|---------------|-------------|-----------|------------|----------|-----------|------------|------------|--------------------|------------------|--------------|
+- The Excel file contains a structured table with the following columns:
+
+| Ticker | Start Year | Revenue (Start) | Revenue (End) | Revenue Growth | Income (Start) | Income (End) | Income Growth | FCF (Start) | FCF (End) | FCF Growth | PE Ratio | PEG Ratio | Market Cap | Total Debt | Cash & Equivalents | Enterprise Value | Gross Profit |
+|--------|------------|-----------------|---------------|----------------|----------------|--------------|---------------|-------------|-----------|------------|----------|-----------|------------|------------|--------------------|------------------|--------------|
+
+**Sample Output:**
 
 ## Installation
 
