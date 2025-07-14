@@ -46,3 +46,12 @@ htmlcov/
 
 # Jupyter Notebooks
 .ipynb_checkpoints
+
+
+# Exclude all files in data directory but keep the directory structure
+data/*
+!data/.gitkeep
+
+# Exclude all files in output directory but keep the directory structure
+output/*
+!output/.gitkeep
